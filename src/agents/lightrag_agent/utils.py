@@ -14,7 +14,7 @@ from lightrag.utils import setup_logger
 logger = logging.getLogger("lightrag")
 logger.setLevel(logging.INFO)
 
-WORKING_DIR = "./rag_storage_test"
+WORKING_DIR = "/app/agents/lightrag_agent/rag_storage_test"
 class RagSystem:
     def __init__(self, working_dir: str):
         self.working_dir = working_dir

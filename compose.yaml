@@ -16,9 +16,7 @@ services:
       retries: 5
 
   agent_service:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.service
+    image: agent_service
     ports:
       - "8082:8080"
     env_file:
@@ -89,14 +87,14 @@ services:
           action: sync+restart
           target: /app/streamlit_app.py
 
-  ollama:
-    image: ollama/ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    entrypoint: sh
-    command: -c "ollama serve & sleep 5 && ollama pull nomic-embed-text && ollama pull llama3.1:latest && wait"
+  # ollama:
+  #   image: ollama/ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   entrypoint: sh
+  #   command: -c "ollama serve & sleep 5 && ollama pull nomic-embed-text && ollama pull llama3.1:latest && wait"
 
 volumes:
   postgres_data:
