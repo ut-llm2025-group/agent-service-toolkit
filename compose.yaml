@@ -26,6 +26,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      # ollama: # Add dependency on the ollama service
+        # condition: service_started
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/info"]
       interval: 5s
@@ -57,6 +59,7 @@ services:
         - path: src/memory/
           action: sync+restart
           target: /app/memory/
+
   streamlit_app:
     build:
       context: .
@@ -88,5 +91,19 @@ services:
           action: sync+restart
           target: /app/streamlit_app.py
 
+  # ollama:
+  #   image: ollama/ollama:rocm
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   command: >
+  #     sh -c "ollama serve & 
+  #            sleep 5 && 
+  #            ollama pull llama3.1:latest && 
+  #            ollama pull nomic-embed-text && 
+  #            wait"
+
 volumes:
   postgres_data:
+  ollama_data:
