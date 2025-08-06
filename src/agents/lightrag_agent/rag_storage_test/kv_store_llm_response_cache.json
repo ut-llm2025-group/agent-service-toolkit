@@ -102,5 +102,31 @@
     "create_time": 1754068956,
     "update_time": 1754068956,
     "_id": "hybrid:query:3497af11eef3d337e68aa2b8f81f215b"
+  },
+  "hybrid:keywords:7f362fa3baecf81621031c8004d5e225": {
+    "return": "{\"high_level_keywords\": [\"\\u0633\\u0644\\u0627\\u0645\"], \"low_level_keywords\": [\"\\u0645\\u0631\\u062d\\u0628\\u0627\", \"\\u0635\\u0628\\u0627\\u062d \\u0627\\u0644\\u062e\\u064a\\u0631\", \"\\u0645\\u0633\\u0627\\u0621 \\u0627\\u0644\\u062e\\u064a\\u0631\"]}",
+    "cache_type": "keywords",
+    "chunk_id": null,
+    "embedding": null,
+    "embedding_shape": null,
+    "embedding_min": null,
+    "embedding_max": null,
+    "original_prompt": "سلام",
+    "create_time": 1754464195,
+    "update_time": 1754464195,
+    "_id": "hybrid:keywords:7f362fa3baecf81621031c8004d5e225"
+  },
+  "hybrid:query:7f362fa3baecf81621031c8004d5e225": {
+    "return": "هیچ کلامی ندارد. اگر سوال یا مورد خاصی دارید می توانید آن را مطرح کنید.",
+    "cache_type": "query",
+    "chunk_id": null,
+    "embedding": null,
+    "embedding_shape": null,
+    "embedding_min": null,
+    "embedding_max": null,
+    "original_prompt": "سلام",
+    "create_time": 1754464284,
+    "update_time": 1754464284,
+    "_id": "hybrid:query:7f362fa3baecf81621031c8004d5e225"
   }
 }

@@ -36,7 +36,7 @@ class RagSystem:
                 llm_model_name="llama3.1:latest",
                 summary_max_tokens=8192,
                 llm_model_kwargs={
-                    "host": "http://localhost:11434",
+                    "host": "http://ollama:11434",
                     "options": {"num_ctx": 8192},
                     "timeout": 300,
                 },
@@ -46,7 +46,7 @@ class RagSystem:
                     func=lambda texts: ollama_embed(
                         texts,
                         embed_model="nomic-embed-text",
-                        host="http://localhost:11434",
+                        host="http://ollama:11434",
                     ),
                 ),
             )
