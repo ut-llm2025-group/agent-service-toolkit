@@ -8,48 +8,66 @@ from lightrag.kg.shared_storage import \
     initialize_pipeline_status  # type: ignore
 from lightrag.llm.ollama import ollama_embed  # type: ignore
 from lightrag.llm.ollama import ollama_model_complete
+from lightrag.llm.openai import gpt_4o_mini_complete, openai_embed
 from lightrag.utils import EmbeddingFunc  # type: ignore
 from lightrag.utils import setup_logger
+
+from core.settings import settings
 
 logger = logging.getLogger("lightrag")
 logger.setLevel(logging.INFO)
 
+LLM_MODEL = settings.GRAPH_LLM_MODEL 
+
 WORKING_DIR = "/app/agents/lightrag_agent/rag_storage_test"
 class RagSystem:
-    def __init__(self, working_dir: str):
+    def __init__(self, working_dir: str, llm_model: str):
         self.working_dir = working_dir
         if not os.path.exists(self.working_dir):
             logger.info(f"Creating working directory: {self.working_dir}")
             os.mkdir(self.working_dir)
         self.rag: Optional[LightRAG] = None
+        self.llm_model = llm_model 
     
     async def initialize(self):
         """Initialize the RAG system asynchronously."""
         logger.info("Initializing LightRAG system...")
         self.rag = await self.initialize_rag()
 
-    async def initialize_rag(self):
+    async def initialize_rag(self) -> LightRAG:  
         try:
-            rag = LightRAG(
-                working_dir=self.working_dir,
-                llm_model_func=ollama_model_complete,
-                llm_model_name="llama3.1:latest",
-                summary_max_tokens=8192,
-                llm_model_kwargs={
-                    "host": "http://ollama:11434",
-                    "options": {"num_ctx": 8192},
-                    "timeout": 300,
-                },
-                embedding_func=EmbeddingFunc(
-                    embedding_dim=768,
-                    max_token_size=8192,
-                    func=lambda texts: ollama_embed(
-                        texts,
-                        embed_model="nomic-embed-text",
-                        host="http://ollama:11434",
+            if self.llm_model == "llama3.1:latest":
+                rag = LightRAG(
+                    working_dir=self.working_dir,
+                    llm_model_func=ollama_model_complete,
+                    llm_model_name="llama3.1:latest",
+                    summary_max_tokens=8192,
+                    llm_model_kwargs={
+                        "host": "http://ollama:11434",
+                        "options": {"num_ctx": 8192},
+                        "timeout": 300,
+                    },
+                    embedding_func=EmbeddingFunc(
+                        embedding_dim=768,
+                        max_token_size=8192,
+                        func=lambda texts: ollama_embed(
+                            texts,
+                            embed_model="nomic-embed-text",
+                            host="http://ollama:11434",
+                        ),
                     ),
-                ),
-            )
+                )
+            elif self.llm_model == "gpt-4o-mini":
+                if settings.OPENAI_API_KEY is None:
+                    logger.error(
+                        "Error: OPENAI_API_KEY environment variable is not set. Please set this variable before running the program."
+                    )
+                    return 
+                rag = LightRAG(
+                    working_dir=WORKING_DIR,
+                    embedding_func=openai_embed,
+                    llm_model_func=gpt_4o_mini_complete,
+                )
             # IMPORTANT: Both initialization calls are required!
             await rag.initialize_storages()  # Initialize storage backends
             await initialize_pipeline_status()  # Initialize processing pipeline

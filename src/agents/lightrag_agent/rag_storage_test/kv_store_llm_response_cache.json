@@ -128,5 +128,31 @@
     "create_time": 1754464284,
     "update_time": 1754464284,
     "_id": "hybrid:query:7f362fa3baecf81621031c8004d5e225"
+  },
+  "hybrid:keywords:5832710b75ee74785b5b612197945936": {
+    "return": "{\"high_level_keywords\": [\"Detail\", \"Information\"], \"low_level_keywords\": []}",
+    "cache_type": "keywords",
+    "chunk_id": null,
+    "embedding": null,
+    "embedding_shape": null,
+    "embedding_min": null,
+    "embedding_max": null,
+    "original_prompt": "give me more detail",
+    "create_time": 1754465695,
+    "update_time": 1754465695,
+    "_id": "hybrid:keywords:5832710b75ee74785b5b612197945936"
+  },
+  "global:query:5832710b75ee74785b5b612197945936": {
+    "return": "**The World of Marisol and the Mirror Realm**\n\nBased on the knowledge graph and document chunks, it appears that Marisol is a character who discovers an old mirror in the attic that serves as a portal to a mystical garden. This realm is characterized by its dreamlike quality, where time and reality are distorted.\n\n**Marisol's Journey**\n\nAs described in the document chunk 1, Marisol enters the mirror realm through the reflection of her own face. She finds herself under a canopy of rainbow petals, surrounded by lanterns that whisper to her. A woman with hair like smoke beckons her forward, initiating a journey of self-discovery and exploration.\n\n**The Crow's Role**\n\nIn document chunk 1, it is mentioned that Marisol meets a crow who speaks in riddles during her time in the mirror realm. The crow seems to be a guide or an assistant to Marisol, helping her navigate the complexities of this world.\n\n**Relationships in the Mirror Realm**\n\nAccording to the relationships listed in the knowledge graph, Marisol has connections with various entities in the mirror realm. For example, she is described as having a relationship with The Crow (ID 1), where The Crow assists Marisol in navigating the mirror world. Similarly, she has a connection with The Woman in Smoke Hair (ID 5), who guides her into the mirror realm.\n\n**Consequences of Staying**\n\nAs mentioned in document chunk 1, Marisol's time in the mirror realm comes at a cost. Her real life begins to slip away, with her parents calling her name in empty halls and her bedroom growing cold and unused. This suggests that staying in the mirror realm for too long can have consequences on one's physical reality.\n\n**References**\n\n* [KG] ID 5: The Woman in Smoke Hair\n* [KG] ID 1: Marisol and The Crow\n* [DC] Document Chunk 1: The story of Marisol's journey into the mirror realm\n* [KG] ID 3: Marisol and The Mirror\n* [KG] ID 2: Marisol and The Garden",
+    "cache_type": "query",
+    "chunk_id": null,
+    "embedding": null,
+    "embedding_shape": null,
+    "embedding_min": null,
+    "embedding_max": null,
+    "original_prompt": "give me more detail",
+    "create_time": 1754465897,
+    "update_time": 1754465897,
+    "_id": "global:query:5832710b75ee74785b5b612197945936"
   }
 }

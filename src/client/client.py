@@ -340,6 +340,37 @@ class AgentClient:
             except httpx.HTTPError as e:
                 raise AgentClientError(f"Error: {e}")
 
+
+    async def aupload_files(
+            self, 
+            files_data: list[tuple[str, Any]], 
+            parsing_method: str, 
+            parsing_llm: str
+        ) -> dict[str, Any]:
+        """
+        Uploads one or more files to the service asynchronously.
+
+        Args:
+            files_data: A list of tuples formatted for httpx's multipart file upload.
+                        Example: [('files', ('report.txt', b'file content', 'text/plain'))]
+
+        Returns:
+            A dictionary containing the JSON response from the server.
+        """
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(
+                    f"{self.base_url}/upload/",
+                    files=files_data,
+                    headers=self._headers,
+                    timeout=self.timeout,
+                )
+                response.raise_for_status()
+            except httpx.HTTPError as e:
+                raise AgentClientError(f"Error uploading files: {e}")
+        return response.json()
+
+
     def get_history(self, thread_id: str) -> ChatHistory:
         """
         Get chat history.
@@ -360,3 +391,5 @@ class AgentClient:
             raise AgentClientError(f"Error: {e}")
 
         return ChatHistory.model_validate(response.json())
+    
+

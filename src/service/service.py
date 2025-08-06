@@ -2,13 +2,14 @@ import inspect
 import json
 import logging
 import warnings
+import asyncio
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import Annotated, Any
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, status, UploadFile, File, Form
+from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from langchain_core._api import LangChainBetaWarning
 from langchain_core.messages import AIMessage, AIMessageChunk, AnyMessage, HumanMessage, ToolMessage
@@ -405,6 +406,41 @@ async def health_check():
             health_status["langfuse"] = "disconnected"
 
     return health_status
+
+
+@app.post("/upload/", tags=["File Upload"])
+async def upload_files(
+    files: list[UploadFile] = File(...),
+    parsing_method: str = Form(...)
+):
+    """
+    Accepts files and a parsing method, then processes them to update the knowledge base.
+    """
+    if not files:
+        return JSONResponse(status_code=400, content={"message": "No files were sent."})
+
+    filenames = [file.filename for file in files]
+    logger.info(f"Received {len(filenames)} files for processing: {', '.join(filenames)}")
+    logger.info(f"Chosen parsing method: {parsing_method}")
+
+    try:
+        # Delegate the processing logic to the controller function
+        result = await process_documents(files, parsing_method)
+        
+        # Add original filenames to the successful response
+        response_content = result.copy()
+        response_content["filenames"] = filenames
+        
+        return JSONResponse(status_code=200, content=response_content)
+
+    except ValueError as e:
+        # Handle invalid parsing method or other known value errors
+        logger.error(f"Value Error during processing: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        # Handle unexpected errors during processing
+        logger.error(f"An unexpected error occurred in the backend: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An internal error occurred while processing the documents.")
 
 
 app.include_router(router)

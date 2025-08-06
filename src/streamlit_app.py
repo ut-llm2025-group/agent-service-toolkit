@@ -23,7 +23,7 @@ from schema.task_data import TaskData, TaskDataStatus
 # The app heavily uses AgentClient to interact with the agent's FastAPI endpoints.
 
 
-APP_TITLE = "Agent Service Toolkit"
+APP_TITLE = "LLM Project RAG Agent Service"
 APP_ICON = "🧰"
 USER_ID_COOKIE = "user_id"
 
@@ -114,24 +114,55 @@ async def main() -> None:
         st.header(f"{APP_ICON} {APP_TITLE}")
 
         ""
-        "Full toolkit for running an AI agent service built with LangGraph, FastAPI and Streamlit"
+        "LLM Project RAG Agent Service is a simple chat interface to interact with Lightrag or Naive rag agents."
         ""
 
         st.header("✍️ Knowledge Base")
-        uploaded_file = st.file_uploader(
-            "Upload a .txt file to use as a knowledge base", type="txt", key="file_uploader"
+        uploaded_files = st.file_uploader(
+            "Upload one or more .txt files to use as a knowledge base",
+            type="txt",
+            accept_multiple_files=True,
+            key="file_uploader"
         )
 
-        if uploaded_file:
-            # Read and decode the file content as a string
-            knowledge_base_text = uploaded_file.getvalue().decode("utf-8")
-            st.session_state.knowledge_base_text = knowledge_base_text
-            st.info(f"Uploaded: `{uploaded_file.name}`")
-            if st.button("Remove File", use_container_width=True):
-                del st.session_state.knowledge_base_text
-                if "file_uploader" in st.session_state:
-                    st.session_state.file_uploader = None
-                st.rerun()
+        parsing_method = st.radio(
+            "Select a parsing method for the knowledge base:",
+            options=["Chunking", "Graph Extraction", "Both"],
+            horizontal=True,
+            key="parsing_method"
+        )
+
+        parsing_llm = st.radio(
+            "Select a LLM for parsing:",
+            options=["llama3.1:latest", "gpt-4o-mini"],
+            horizontal=True,
+            key="parsing_method"
+        )
+
+
+        if uploaded_files:
+            if st.button("Add to Knowledge Base", use_container_width=True, type="primary"):
+                with st.spinner(f"Uploading and processing files using '{parsing_method}'..."):
+                    
+                    files_for_api = [
+                        ("files", (file.name, file.getvalue(), file.type))
+                        for file in uploaded_files
+                    ]
+
+                    try:
+                        response_data = await agent_client.aupload_files(
+                            files_data=files_for_api, 
+                            parsing_method=parsing_method,
+                            parsing_llm=parsing_llm,
+                        )
+                        
+                        st.success(f"✅ {response_data.get('message', 'Files uploaded successfully!')}")
+                        st.rerun()
+
+                    except AgentClientError as e:
+                        st.error(f"❌ File upload failed: {e}")
+                    except Exception as e:
+                        st.error(f"An unexpected error occurred: {e}")
 
         if st.button(":material/chat: New Chat", use_container_width=True):
             st.session_state.messages = []
@@ -139,8 +170,10 @@ async def main() -> None:
             st.rerun()
 
         with st.popover(":material/settings: Settings", use_container_width=True):
-            model_idx = agent_client.info.models.index(agent_client.info.default_model)
-            model = st.selectbox("LLM to use", options=agent_client.info.models, index=model_idx)
+            ## NOTE: The agent service currently only supports the gemini-2.0-flash model.
+            # model_idx = agent_client.info.models.index(agent_client.info.default_model)
+            # model = st.selectbox("LLM to use", options=agent_client.info.models, index=model_idx)
+            model = "gemini-2.0-flash" # Hardcoded for now, as the agent service only supports this model
             agent_list = [a.key for a in agent_client.info.agents]
             agent_idx = agent_list.index(agent_client.info.default_agent)
             agent_client.agent = st.selectbox(
@@ -148,13 +181,13 @@ async def main() -> None:
                 options=agent_list,
                 index=agent_idx,
             )
-            use_streaming = st.toggle("Stream results", value=True)
+            # use_streaming = st.toggle("Stream results", value=True)
+            use_streaming = True
 
-            # Display user ID (for debugging or user information)
+
             st.text_input("User ID (read-only)", value=user_id, disabled=True)
 
 
-    # Draw existing messages
     messages: list[ChatMessage] = st.session_state.messages
 
     if len(messages) == 0:
@@ -174,14 +207,12 @@ async def main() -> None:
         with st.chat_message("ai"):
             st.write(WELCOME)
 
-    # draw_messages() expects an async iterator over messages
     async def amessage_iter() -> AsyncGenerator[ChatMessage, None]:
         for m in messages:
             yield m
 
     await draw_messages(amessage_iter())
 
-    # Generate new message if the user provided new input
     if user_input := st.chat_input():
         messages.append(ChatMessage(type="human", content=user_input))
         st.chat_message("human").write(user_input)
