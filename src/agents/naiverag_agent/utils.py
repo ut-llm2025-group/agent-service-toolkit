@@ -95,7 +95,7 @@ class FaissRagSystem:
         prompt = ChatPromptTemplate.from_template(prompt_template)
 
         if "llama" in self.llm_model.lower():
-             from langchain_community.llms import Ollama
+             from langchain_ollama import Ollama
              llm = Ollama(model=self.llm_model, base_url=settings.OLLAMA_BASE_URL)
         else: 
              llm = ChatOpenAI(model_name=self.llm_model, api_key=settings.OPENAI_API_KEY)

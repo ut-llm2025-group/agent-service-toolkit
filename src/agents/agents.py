@@ -5,9 +5,10 @@ from langgraph.pregel import Pregel
 
 from agents.chatbot import chatbot
 from agents.lightrag_agent.lightrag_agent import lightrag_agent
+from agents.naiverag_agent.naiverag_agent import naiverag_agent
 from schema import AgentInfo
 
-DEFAULT_AGENT = "chatbot"
+DEFAULT_AGENT = "lightrag-agent"
 
 # Type alias to handle LangGraph's different agent patterns
 # - @entrypoint functions return Pregel
@@ -25,6 +26,9 @@ agents: dict[str, Agent] = {
     "chatbot": Agent(description="A simple chatbot.", graph=chatbot),
     "lightrag-agent": Agent(
         description="A RAG assistant with access to lightrag", graph=lightrag_agent
+    ),
+    "naiverag-agent": Agent(
+        description="A RAG assistant with access to lightrag", graph=naiverag_agent
     ),
 }
 
