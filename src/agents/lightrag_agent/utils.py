@@ -17,9 +17,7 @@ from core.settings import settings
 logger = logging.getLogger("lightrag")
 logger.setLevel(logging.INFO)
 
-LLM_MODEL = settings.GRAPH_LLM_MODEL 
-
-WORKING_DIR = "/app/agents/lightrag_agent/rag_storage_test"
+LIGHTRAG_WORKING_DIR = "/app/agents/lightrag_agent/rag_storage_test"
 class RagSystem:
     def __init__(self, working_dir: str, llm_model: str):
         self.working_dir = working_dir

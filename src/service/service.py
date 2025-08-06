@@ -36,6 +36,7 @@ from service.utils import (
     convert_message_content_to_string,
     langchain_to_chat_message,
     remove_tool_calls,
+    process_documents
 )
 
 warnings.filterwarnings("ignore", category=LangChainBetaWarning)
@@ -411,7 +412,8 @@ async def health_check():
 @app.post("/upload/", tags=["File Upload"])
 async def upload_files(
     files: list[UploadFile] = File(...),
-    parsing_method: str = Form(...)
+    parsing_method: str = Form(...),
+    llm_model: str = Form(settings.RAG_LLM_MODEL),
 ):
     """
     Accepts files and a parsing method, then processes them to update the knowledge base.
@@ -424,21 +426,17 @@ async def upload_files(
     logger.info(f"Chosen parsing method: {parsing_method}")
 
     try:
-        # Delegate the processing logic to the controller function
         result = await process_documents(files, parsing_method)
         
-        # Add original filenames to the successful response
         response_content = result.copy()
         response_content["filenames"] = filenames
         
         return JSONResponse(status_code=200, content=response_content)
 
     except ValueError as e:
-        # Handle invalid parsing method or other known value errors
         logger.error(f"Value Error during processing: {e}")
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        # Handle unexpected errors during processing
         logger.error(f"An unexpected error occurred in the backend: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="An internal error occurred while processing the documents.")
 

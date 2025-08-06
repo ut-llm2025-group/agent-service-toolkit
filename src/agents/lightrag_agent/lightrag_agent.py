@@ -3,14 +3,15 @@ import asyncio
 from typing import TypedDict
 from langgraph.graph import END, MessagesState, StateGraph
 from langchain_core.messages import AIMessage, HumanMessage
-from .utils import RagSystem, WORKING_DIR, LLM_MODEL
+from .utils import RagSystem, LIGHTRAG_WORKING_DIR
+from core.settings import settings
 
 
 class AgentState(MessagesState, total=False):
     ...
 
 
-rag_system = RagSystem(WORKING_DIR, LLM_MODEL)
+rag_system = RagSystem(LIGHTRAG_WORKING_DIR, settings.RAG_LLM_MODEL)
 
 
 def retrieve_generation(state: AgentState) -> AgentState:

@@ -132,11 +132,11 @@ async def main() -> None:
             key="parsing_method"
         )
 
-        parsing_llm = st.radio(
+        llm_model = st.radio(
             "Select a LLM for parsing:",
             options=["llama3.1:latest", "gpt-4o-mini"],
             horizontal=True,
-            key="parsing_method"
+            key="llm_model"
         )
 
 
@@ -153,7 +153,7 @@ async def main() -> None:
                         response_data = await agent_client.aupload_files(
                             files_data=files_for_api, 
                             parsing_method=parsing_method,
-                            parsing_llm=parsing_llm,
+                            llm_model=llm_model,
                         )
                         
                         st.success(f"✅ {response_data.get('message', 'Files uploaded successfully!')}")

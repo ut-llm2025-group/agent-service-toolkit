@@ -345,7 +345,7 @@ class AgentClient:
             self, 
             files_data: list[tuple[str, Any]], 
             parsing_method: str, 
-            parsing_llm: str
+            llm_model: str
         ) -> dict[str, Any]:
         """
         Uploads one or more files to the service asynchronously.
@@ -357,11 +357,16 @@ class AgentClient:
         Returns:
             A dictionary containing the JSON response from the server.
         """
+        data_payload = {
+            "parsing_method": parsing_method,
+            "llm_model": llm_model,
+        }
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.post(
                     f"{self.base_url}/upload/",
                     files=files_data,
+                    data=data_payload,
                     headers=self._headers,
                     timeout=self.timeout,
                 )

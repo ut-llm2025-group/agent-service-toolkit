@@ -9,8 +9,13 @@ from langchain_core.messages import (
 from langchain_core.messages import (
     ChatMessage as LangchainChatMessage,
 )
+from agents.lightrag_agent.utils import RagSystem, LIGHTRAG_WORKING_DIR
+from agents.naiverag_agent.utils import FaissRagSystem, FAISS_DB_DIR
 
 from schema import ChatMessage
+from core.settings import settings
+
+LLM_MODEL = settings.RAG_LLM_MODEL
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +84,7 @@ def remove_tool_calls(content: str | list[str | dict]) -> str | list[str | dict]
     ]
 
 
-async def process_documents(files: List, parsing_method: str):
+async def process_documents(files: list, parsing_method: str):
     """
     Main controller to process uploaded documents based on the selected parsing method.
 
@@ -96,7 +101,7 @@ async def process_documents(files: List, parsing_method: str):
 
     if parsing_method == "Chunking":
         logger.info("Initializing FAISS RAG System for Chunking...")
-        faiss_system = FaissRagSystem(db_path=FAISS_DB_DIR)
+        faiss_system = FaissRagSystem(db_path=FAISS_DB_DIR, llm_model=LLM_MODEL)
         await faiss_system.insert_text(full_text)
         logger.info("FAISS knowledge base updated.")
         return {"message": "Knowledge base updated using FAISS (Chunking)."}
