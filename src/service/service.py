@@ -31,6 +31,7 @@ from schema import (
     ServiceMetadata,
     StreamInput,
     UserInput,
+    ThreadInfo
 )
 from service.utils import (
     convert_message_content_to_string,
@@ -439,6 +440,90 @@ async def upload_files(
     except Exception as e:
         logger.error(f"An unexpected error occurred in the backend: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="An internal error occurred while processing the documents.")
+    
+
+import json
+import pickle
+from datetime import datetime, timezone
+
+# ... other imports from your file
+
+@router.get("/{agent_id}/threads/", response_model=list[ThreadInfo])
+async def list_threads(user_id: str, agent_id: str = DEFAULT_AGENT):
+    """
+    List all real chat threads for a given user by querying the SQLAlchemy checkpointer database.
+    This version is adapted to the specific schema with a JSON metadata column.
+    """
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A user_id query parameter is required."
+        )
+
+    agent: AgentGraph = get_agent(agent_id)
+    checkpointer = agent.checkpointer
+
+    if not hasattr(checkpointer, "conn"):
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="The configured checkpointer does not support direct DB connection for thread listing."
+        )
+
+    threads = []
+    processed_thread_ids = set()
+
+    try:
+        result = await checkpointer.conn.execute(
+            "SELECT thread_id, metadata, checkpoint FROM checkpoints"
+        )
+        all_checkpoints = await result.fetchall()
+
+        for row in all_checkpoints:
+            thread_id = row[0]
+            
+            if thread_id in processed_thread_ids:
+                continue
+
+            metadata = json.loads(row[1])
+            
+            if metadata.get("user_id") == user_id:
+                title = "Untitled Chat"
+                checkpoint_blob = row[2]
+                
+                if checkpoint_blob:
+                    # ✅ WRAP THE UNPICKLING IN A TRY...EXCEPT BLOCK
+                    try:
+                        checkpoint_tuple = pickle.loads(checkpoint_blob)
+                        messages = checkpoint_tuple.channel_values.get("messages", [])
+                        first_human_message = next((m.content for m in messages if isinstance(m, HumanMessage)), None)
+                        if first_human_message:
+                             title = (first_human_message[:75] + '...') if len(first_human_message) > 75 else first_human_message
+                    except pickle.UnpicklingError:
+                        # This happens for intermediate checkpoints that aren't full state snapshots.
+                        # We can safely ignore it and proceed with the default title.
+                        logger.warning(f"Could not unpickle checkpoint for thread {thread_id}; using default title.")
+                        pass
+
+                placeholder_timestamp = datetime.now(timezone.utc).isoformat()
+                
+                threads.append(
+                    ThreadInfo(
+                        thread_id=thread_id,
+                        updated_at=placeholder_timestamp,
+                        title=title,
+                    )
+                )
+                processed_thread_ids.add(thread_id)
+
+    except Exception as e:
+        logger.error(f"Failed to fetch threads from checkpointer DB for user {user_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not retrieve thread list from the database."
+        )
+    
+    threads.sort(key=lambda x: x.updated_at, reverse=True)
+    return threads
 
 
 app.include_router(router)

@@ -13,6 +13,7 @@ from schema import (
     ServiceMetadata,
     StreamInput,
     UserInput,
+    ThreadInfo
 )
 
 
@@ -374,6 +375,38 @@ class AgentClient:
             except httpx.HTTPError as e:
                 raise AgentClientError(f"Error uploading files: {e}")
         return response.json()
+
+
+    async def alist_threads(self, user_id: str) -> list[ThreadInfo]:
+        """
+        Fetch a list of all chat threads for a specific user.
+        """
+        async with httpx.AsyncClient() as client:
+            try:
+                # CORRECTED LINE: The agent_id is now part of the URL path
+                url = f"{self.base_url}/{self.agent}/threads/"
+                
+                response = await client.get(
+                    url,
+                    params={"user_id": user_id},
+                    headers=self._headers,
+                    timeout=self.timeout,
+                )
+                
+                response.raise_for_status()
+                
+                data = response.json()
+                history_list = [ThreadInfo.model_validate(item) for item in data]
+                history_list.sort(key=lambda x: x.updated_at, reverse=True)
+                return history_list
+
+            except httpx.HTTPStatusError as e:
+                error_detail = e.response.json().get("detail") if e.response.content else e.response.text
+                raise AgentClientError(f"API Error fetching chat history: {error_detail}") from e
+            except httpx.RequestError as e:
+                raise AgentClientError(f"Request failed while fetching chat history: {e}") from e
+            except Exception as e:
+                raise AgentClientError(f"An unexpected error occurred while fetching history: {e}") from e
 
 
     def get_history(self, thread_id: str) -> ChatHistory:

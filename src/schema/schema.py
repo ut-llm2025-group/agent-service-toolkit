@@ -1,4 +1,4 @@
-from typing import Any, Literal, NotRequired
+from typing import Any, Literal, NotRequired, Optional
 
 from pydantic import BaseModel, Field, SerializeAsAny
 from typing_extensions import TypedDict
@@ -173,3 +173,9 @@ class ChatHistoryInput(BaseModel):
 
 class ChatHistory(BaseModel):
     messages: list[ChatMessage]
+
+
+class ThreadInfo(BaseModel):
+    thread_id: str
+    updated_at: str  # Assuming ISO format string for sorting
+    title: Optional[str] = None
