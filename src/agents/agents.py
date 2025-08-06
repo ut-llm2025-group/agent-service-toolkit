@@ -23,7 +23,6 @@ class Agent:
 
 
 agents: dict[str, Agent] = {
-    "chatbot": Agent(description="A simple chatbot.", graph=chatbot),
     "lightrag-agent": Agent(
         description="A RAG assistant with access to lightrag", graph=lightrag_agent
     ),

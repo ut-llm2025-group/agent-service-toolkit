@@ -173,12 +173,16 @@ async def main() -> None:
             key="file_uploader"
         )
 
-        parsing_method = st.radio(
-            "Select a parsing method for the knowledge base:",
-            options=["Chunking", "Graph Extraction", "Both"],
-            horizontal=True,
-            key="parsing_method"
-        )
+        st.markdown("**Select parsing methods for the knowledge base:**")
+
+        use_chunking = st.checkbox("Chunking", value=True)
+        use_graph = st.checkbox("Graph Extraction", value=False)
+
+        parsing_methods = []
+        if use_chunking:
+            parsing_methods.append("Chunking")
+        if use_graph:
+            parsing_methods.append("Graph Extraction")
 
         llm_model = st.radio(
             "Select a LLM for parsing:",
@@ -190,7 +194,7 @@ async def main() -> None:
 
         if uploaded_files:
             if st.button("Add to Knowledge Base", use_container_width=True, type="primary"):
-                with st.spinner(f"Uploading and processing files using '{parsing_method}'..."):
+                with st.spinner(f"Uploading and processing files using '{parsing_methods}'..."):
                     
                     files_for_api = [
                         ("files", (file.name, file.getvalue(), file.type))
@@ -200,7 +204,7 @@ async def main() -> None:
                     try:
                         response_data = await agent_client.aupload_files(
                             files_data=files_for_api, 
-                            parsing_method=parsing_method,
+                            parsing_methods=parsing_methods,
                             llm_model=llm_model,
                         )
                         

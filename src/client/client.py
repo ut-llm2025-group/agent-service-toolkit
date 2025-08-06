@@ -345,7 +345,7 @@ class AgentClient:
     async def aupload_files(
             self, 
             files_data: list[tuple[str, Any]], 
-            parsing_method: str, 
+            parsing_methods: list[str], 
             llm_model: str
         ) -> dict[str, Any]:
         """
@@ -359,7 +359,7 @@ class AgentClient:
             A dictionary containing the JSON response from the server.
         """
         data_payload = {
-            "parsing_method": parsing_method,
+            "parsing_methods": parsing_methods,
             "llm_model": llm_model,
         }
         async with httpx.AsyncClient() as client:

@@ -413,7 +413,7 @@ async def health_check():
 @app.post("/upload/", tags=["File Upload"])
 async def upload_files(
     files: list[UploadFile] = File(...),
-    parsing_method: str = Form(...),
+    parsing_methods: list[str] = Form(...),
     llm_model: str = Form(),
 ):
     """
@@ -424,10 +424,10 @@ async def upload_files(
 
     filenames = [file.filename for file in files]
     logger.info(f"Received {len(filenames)} files for processing: {', '.join(filenames)}")
-    logger.info(f"Chosen parsing method: {parsing_method}")
+    logger.info(f"Chosen parsing method: {parsing_methods}")
 
     try:
-        result = await process_documents(files, parsing_method, llm_model)
+        result = await process_documents(files, parsing_methods, llm_model)
         
         response_content = result.copy()
         response_content["filenames"] = filenames

@@ -83,7 +83,7 @@ def remove_tool_calls(content: str | list[str | dict]) -> str | list[str | dict]
     ]
 
 
-async def process_documents(files: list, parsing_method: str, llm_model: str):
+async def process_documents(files: list, parsing_methods: list[str], llm_model: str):
     """
     Main controller to process uploaded documents based on the selected parsing method.
 
@@ -91,33 +91,30 @@ async def process_documents(files: list, parsing_method: str, llm_model: str):
         files (List): A list of uploaded file objects from FastAPI.
         parsing_method (str): The method to use ('Chunking', 'Graph Extraction', 'Both').
     """
-    logger.info(f"Starting document processing with method: {parsing_method}")
+    logger.info(f"Starting document processing with method: {parsing_methods}")
     # Combine content from all uploaded files into a single text block
     full_text = ""
     for file in files:
         content = await file.read()
         full_text += content.decode("utf-8") + "\n\n"
 
-    if parsing_method == "Chunking":
+    if "Chunking" in parsing_methods:
         logger.info("Initializing FAISS RAG System for Chunking...")
         faiss_system = FaissRagSystem(db_path=FAISS_DB_DIR, llm_model=llm_model)
         await faiss_system.insert_text(full_text)
         logger.info("FAISS knowledge base updated.")
         return {"message": "Knowledge base updated using FAISS (Chunking)."}
 
-    elif parsing_method in ["Graph Extraction", "Both"]:
-        logger.info(f"Initializing LightRAG System for {parsing_method}...")
+    if "Graph Extraction" in parsing_methods:
         rag_system = RagSystem(working_dir=LIGHTRAG_WORKING_DIR, llm_model=llm_model)
         try:
             await rag_system.initialize()
             await rag_system.insert_text(full_text)
             logger.info("LightRAG knowledge base updated.")
-            return {"message": f"Knowledge base updated using LightRAG ({parsing_method})."}
+            return {"message": f"Knowledge base updated using LightRAG (Graph Extraction)."}
         except Exception as e:
             logger.error(f"An error occurred during LightRAG processing: {e}")
             raise
         finally:
             # Ensure resources are cleaned up
             await rag_system.finalize()
-    else:
-        raise ValueError(f"Invalid parsing method specified: {parsing_method}")
