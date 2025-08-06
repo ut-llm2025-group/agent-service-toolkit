@@ -117,6 +117,22 @@ async def main() -> None:
         "Full toolkit for running an AI agent service built with LangGraph, FastAPI and Streamlit"
         ""
 
+        st.header("✍️ Knowledge Base")
+        uploaded_file = st.file_uploader(
+            "Upload a .txt file to use as a knowledge base", type="txt", key="file_uploader"
+        )
+
+        if uploaded_file:
+            # Read and decode the file content as a string
+            knowledge_base_text = uploaded_file.getvalue().decode("utf-8")
+            st.session_state.knowledge_base_text = knowledge_base_text
+            st.info(f"Uploaded: `{uploaded_file.name}`")
+            if st.button("Remove File", use_container_width=True):
+                del st.session_state.knowledge_base_text
+                if "file_uploader" in st.session_state:
+                    st.session_state.file_uploader = None
+                st.rerun()
+
         if st.button(":material/chat: New Chat", use_container_width=True):
             st.session_state.messages = []
             st.session_state.thread_id = str(uuid.uuid4())
@@ -137,47 +153,6 @@ async def main() -> None:
             # Display user ID (for debugging or user information)
             st.text_input("User ID (read-only)", value=user_id, disabled=True)
 
-        @st.dialog("Architecture")
-        def architecture_dialog() -> None:
-            st.image(
-                "https://github.com/JoshuaC215/agent-service-toolkit/blob/main/media/agent_architecture.png?raw=true"
-            )
-            "[View full size on Github](https://github.com/JoshuaC215/agent-service-toolkit/blob/main/media/agent_architecture.png)"
-            st.caption(
-                "App hosted on [Streamlit Cloud](https://share.streamlit.io/) with FastAPI service running in [Azure](https://learn.microsoft.com/en-us/azure/app-service/)"
-            )
-
-        if st.button(":material/schema: Architecture", use_container_width=True):
-            architecture_dialog()
-
-        with st.popover(":material/policy: Privacy", use_container_width=True):
-            st.write(
-                "Prompts, responses and feedback in this app are anonymously recorded and saved to LangSmith for product evaluation and improvement purposes only."
-            )
-
-        @st.dialog("Share/resume chat")
-        def share_chat_dialog() -> None:
-            session = st.runtime.get_instance()._session_mgr.list_active_sessions()[0]
-            st_base_url = urllib.parse.urlunparse(
-                [session.client.request.protocol, session.client.request.host, "", "", "", ""]
-            )
-            # if it's not localhost, switch to https by default
-            if not st_base_url.startswith("https") and "localhost" not in st_base_url:
-                st_base_url = st_base_url.replace("http", "https")
-            # Include both thread_id and user_id in the URL for sharing to maintain user identity
-            chat_url = (
-                f"{st_base_url}?thread_id={st.session_state.thread_id}&{USER_ID_COOKIE}={user_id}"
-            )
-            st.markdown(f"**Chat URL:**\n```text\n{chat_url}\n```")
-            st.info("Copy the above URL to share or revisit this chat")
-
-        if st.button(":material/upload: Share/resume chat", use_container_width=True):
-            share_chat_dialog()
-
-        "[View the source code](https://github.com/JoshuaC215/agent-service-toolkit)"
-        st.caption(
-            "Made with :material/favorite: by [Joshua](https://www.linkedin.com/in/joshua-k-carroll/) in Oakland"
-        )
 
     # Draw existing messages
     messages: list[ChatMessage] = st.session_state.messages

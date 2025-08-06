@@ -2,7 +2,7 @@ services:
   postgres:
     image: postgres:16
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
@@ -16,11 +16,9 @@ services:
       retries: 5
 
   agent_service:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.service
+    image: agent_service
     ports:
-      - "8080:8080"
+      - "8082:8080"
     env_file:
       - .env
     depends_on:
@@ -34,6 +32,12 @@ services:
     # Volume mount of development-only credentials since compose watch doesn't sync ignored files and doesn't do initial sync when the service starts
     volumes:
       - ./privatecredentials:/privatecredentials
+      - ./src/agents:/app/agents
+      - ./src/schema:/app/schema
+      - ./src/service:/app/service
+      - ./src/core:/app/core
+      - ./src/memory:/app/memory
+      - ./src/agent_service.py:/app/agent_service.py
     develop:
       watch:
         - path: src/agents/
@@ -51,6 +55,7 @@ services:
         - path: src/memory/
           action: sync+restart
           target: /app/memory/
+
   streamlit_app:
     build:
       context: .
@@ -66,6 +71,10 @@ services:
       retries: 5
     environment:
       - AGENT_URL=http://agent_service:8080
+    volumes:
+      - ./src/client:/app/client
+      - ./src/schema:/app/schema
+      - ./src/streamlit_app.py:/app/streamlit_app.py
     develop:
       watch:
         - path: src/client/
@@ -78,5 +87,15 @@ services:
           action: sync+restart
           target: /app/streamlit_app.py
 
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: sh
+    command: -c "ollama serve & sleep 5 && ollama pull nomic-embed-text && ollama pull llama3.1:latest && wait"
+
 volumes:
   postgres_data:
+  ollama_data:
