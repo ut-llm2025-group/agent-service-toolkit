@@ -38,10 +38,10 @@ class RagSystem:
                 rag = LightRAG(
                     working_dir=self.working_dir,
                     llm_model_func=ollama_model_complete,
-                    llm_model_name="llama3.1:latest",
+                    llm_model_name=settings.OLLAMA_MODEL,
                     summary_max_tokens=8192,
                     llm_model_kwargs={
-                        "host": "http://ollama:11434",
+                        "host": settings.OLLAMA_BASE_URL,
                         "options": {"num_ctx": 8192},
                         "timeout": 300,
                     },
@@ -51,18 +51,18 @@ class RagSystem:
                         func=lambda texts: ollama_embed(
                             texts,
                             embed_model="nomic-embed-text",
-                            host="http://ollama:11434",
+                            host=settings.OLLAMA_BASE_URL,
                         ),
                     ),
                 )
-            elif self.llm_model == "gpt-4o-mini":
+            elif "gpt" in self.llm_model:
                 if settings.OPENAI_API_KEY is None:
                     logger.error(
                         "Error: OPENAI_API_KEY environment variable is not set. Please set this variable before running the program."
                     )
                     return 
                 rag = LightRAG(
-                    working_dir=WORKING_DIR,
+                    working_dir=self.working_dir,
                     embedding_func=openai_embed,
                     llm_model_func=gpt_4o_mini_complete,
                 )
@@ -117,31 +117,3 @@ class RagSystem:
             logger.error(f"Error finalizing RAG system: {e}")
             raise
 
-
-# Example usage
-async def main():
-    rag_system = RagSystem(WORKING_DIR)
-    try:
-        # Initialize the RAG system
-        await rag_system.initialize()
-        
-        # Example text to insert
-        # with open("share/story.txt") as f:
-        #     text = f.read()
-        # await rag_system.insert_text(text)
-
-        # Example query
-        question = "What is the main theme of the story?"
-        result = await rag_system.query(question, mode="hybrid", top_k=20, chunk_top_k=5)
-
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
-    finally:
-        await rag_system.finalize()
-        logger.info("RAG system operations completed.")
-
-    print("\n\n", result)
-
-if __name__ == "__main__":
-    setup_logger("lightrag", level="INFO")
-    asyncio.run(main())

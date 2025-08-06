@@ -33,7 +33,7 @@ class FaissRagSystem:
             logger.info("Using Ollama embeddings for Llama model.")
             self.embeddings = OllamaEmbeddings(
                 model="nomic-embed-text", 
-                base_url="http://ollama:11434"
+                base_url=settings.OLLAMA_BASE_URL
             )
         elif "gpt" in self.llm_model.lower():
             logger.info("Using OpenAI embeddings for OpenAI model.")
@@ -96,7 +96,7 @@ class FaissRagSystem:
 
         if "llama" in self.llm_model.lower():
              from langchain_community.llms import Ollama
-             llm = Ollama(model=self.llm_model, base_url="http://ollama:11434")
+             llm = Ollama(model=self.llm_model, base_url=settings.OLLAMA_BASE_URL)
         else: 
              llm = ChatOpenAI(model_name=self.llm_model, api_key=settings.OPENAI_API_KEY)
 

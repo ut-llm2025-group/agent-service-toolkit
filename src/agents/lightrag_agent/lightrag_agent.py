@@ -3,6 +3,8 @@ import asyncio
 from typing import TypedDict
 from langgraph.graph import END, MessagesState, StateGraph
 from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.runnables import RunnableConfig
+
 from .utils import RagSystem, LIGHTRAG_WORKING_DIR
 from core.settings import settings
 
@@ -11,11 +13,14 @@ class AgentState(MessagesState, total=False):
     ...
 
 
-rag_system = RagSystem(LIGHTRAG_WORKING_DIR, settings.RAG_LLM_MODEL)
-
-
-def retrieve_generation(state: AgentState) -> AgentState:
+def retrieve_generation(state: AgentState, config: RunnableConfig) -> AgentState:
     """A node that appends a string to the message in the state."""
+    model = config["configurable"].get("model", settings.DEFAULT_MODEL)
+    if model == "ollama":
+        model = settings.OLLAMA_MODEL
+    else:
+        model = "gpt-4o-mini"
+    rag_system = RagSystem(LIGHTRAG_WORKING_DIR, model)
     asyncio.run(rag_system.initialize())
     result = asyncio.run(rag_system.query(state["messages"][-1].content, mode="hybrid", top_k=20, chunk_top_k=5))
     messages = state["messages"]

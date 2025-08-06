@@ -413,7 +413,7 @@ async def health_check():
 async def upload_files(
     files: list[UploadFile] = File(...),
     parsing_method: str = Form(...),
-    llm_model: str = Form(settings.RAG_LLM_MODEL),
+    llm_model: str = Form(),
 ):
     """
     Accepts files and a parsing method, then processes them to update the knowledge base.
@@ -426,7 +426,7 @@ async def upload_files(
     logger.info(f"Chosen parsing method: {parsing_method}")
 
     try:
-        result = await process_documents(files, parsing_method)
+        result = await process_documents(files, parsing_method, llm_model)
         
         response_content = result.copy()
         response_content["filenames"] = filenames

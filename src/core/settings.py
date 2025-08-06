@@ -124,9 +124,6 @@ class Settings(BaseSettings):
         default_factory=dict, description="Map of model names to Azure deployment IDs"
     )
 
-    # RAG Settings
-    RAG_LLM_MODEL: str = "llama3.1:latest"
-
     def model_post_init(self, __context: Any) -> None:
         api_keys = {
             Provider.OPENAI: self.OPENAI_API_KEY,
