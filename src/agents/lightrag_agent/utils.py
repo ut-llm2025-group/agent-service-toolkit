@@ -63,7 +63,13 @@ class RagSystem:
                     return 
                 rag = LightRAG(
                     working_dir=self.working_dir,
-                    embedding_func=openai_embed,
+                    embedding_func=EmbeddingFunc(
+                        embedding_dim=768,
+                        max_token_size=8192,
+                        func=lambda texts: openai_embed(
+                            texts,
+                        ),
+                    ),
                     llm_model_func=gpt_4o_mini_complete,
                 )
             # IMPORTANT: Both initialization calls are required!
