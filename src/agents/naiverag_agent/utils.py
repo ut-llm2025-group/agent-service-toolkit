@@ -86,7 +86,9 @@ class FaissRagSystem:
             return "Error: FAISS database not found or loaded. Please add documents first."
         logger.info(f"Querying FAISS RAG system with question: {question}")
 
-        retriever = self.vector_store.as_retriever()
+        retriever = self.vector_store.as_retriever(
+            search_kwargs={"k": 10}
+        )
         prompt_template = """Answer the question based only on the following context:
         {context}
 
