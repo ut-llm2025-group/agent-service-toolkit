@@ -123,8 +123,7 @@ async def main() -> None:
                 options=agent_list,
                 index=agent_idx,
             )
-            # use_streaming = st.toggle("Stream results", value=True)
-            use_streaming = True
+            use_streaming = st.toggle("Stream results", value=False)
 
             st.text_input("User ID (read-only)", value=user_id, disabled=True)
 
@@ -161,7 +160,7 @@ async def main() -> None:
         #                 if 'messages' in st.session_state:
         #                     del st.session_state['messages']
         #                 if 'thread_id' in st.session_state:
-        #                     del st.session_state['thread_id']
+        #                     del st.session_state['thread_id'``]
         #                 st.rerun()
 
 

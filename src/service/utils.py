@@ -98,12 +98,12 @@ async def process_documents(files: list, parsing_methods: list[str], llm_model: 
         content = await file.read()
         full_text += content.decode("utf-8") + "\n\n"
 
+
     if "Chunking" in parsing_methods:
         logger.info("Initializing FAISS RAG System for Chunking...")
         faiss_system = FaissRagSystem(db_path=FAISS_DB_DIR, llm_model=llm_model)
         await faiss_system.insert_text(full_text)
         logger.info("FAISS knowledge base updated.")
-        return {"message": "Knowledge base updated using FAISS (Chunking)."}
 
     if "Graph Extraction" in parsing_methods:
         rag_system = RagSystem(working_dir=LIGHTRAG_WORKING_DIR, llm_model=llm_model)
@@ -111,7 +111,6 @@ async def process_documents(files: list, parsing_methods: list[str], llm_model: 
             await rag_system.initialize()
             await rag_system.insert_text(full_text)
             logger.info("LightRAG knowledge base updated.")
-            return {"message": f"Knowledge base updated using LightRAG (Graph Extraction)."}
         except Exception as e:
             logger.error(f"An error occurred during LightRAG processing: {e}")
             raise

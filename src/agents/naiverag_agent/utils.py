@@ -95,11 +95,10 @@ class FaissRagSystem:
         prompt = ChatPromptTemplate.from_template(prompt_template)
 
         if "llama" in self.llm_model.lower():
-             from langchain_ollama import Ollama
-             llm = Ollama(model=self.llm_model, base_url=settings.OLLAMA_BASE_URL)
+            from langchain_ollama.llms import OllamaLLM
+            llm = OllamaLLM(model=self.llm_model, base_url=settings.OLLAMA_BASE_URL)
         else: 
-             llm = ChatOpenAI(model_name=self.llm_model, api_key=settings.OPENAI_API_KEY)
-
+            llm = ChatOpenAI(model_name=self.llm_model, api_key=settings.OPENAI_API_KEY)
 
         rag_chain = (
             {"context": retriever, "question": RunnablePassthrough()}
@@ -107,5 +106,4 @@ class FaissRagSystem:
             | llm
             | StrOutputParser()
         )
-
         return await rag_chain.ainvoke(question)

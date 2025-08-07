@@ -46,7 +46,7 @@ class RagSystem:
                         "timeout": 300,
                     },
                     embedding_func=EmbeddingFunc(
-                        embedding_dim=768,
+                        embedding_dim=1536,
                         max_token_size=8192,
                         func=lambda texts: ollama_embed(
                             texts,
@@ -64,7 +64,7 @@ class RagSystem:
                 rag = LightRAG(
                     working_dir=self.working_dir,
                     embedding_func=EmbeddingFunc(
-                        embedding_dim=768,
+                        embedding_dim=1536,
                         max_token_size=8192,
                         func=lambda texts: openai_embed(
                             texts,
