@@ -10,7 +10,6 @@ from lightrag.llm.ollama import ollama_embed  # type: ignore
 from lightrag.llm.ollama import ollama_model_complete
 from lightrag.llm.openai import gpt_4o_mini_complete, openai_embed
 from lightrag.utils import EmbeddingFunc  # type: ignore
-from lightrag.utils import setup_logger
 
 from core.settings import settings
 
@@ -79,14 +78,7 @@ class RagSystem:
 
     async def query(self, question: str, ids: list[str], mode: Literal["local", "global", "hybrid", "naive"]="hybrid",
                     top_k=20, chunk_top_k=5):
-        """Perform a query on the RAG system.
-        Args:
-            question (str): The question to query.
-            mode (str): The mode of the query, default is "hybrid".
-        """
-        if self.rag is None:
-            raise RuntimeError("RAG system not initialized. Call initialize() first.")
-        logger.info(f"Querying RAG system with question: {question}")
+        
         result = await self.rag.aquery(
             question,
             param=QueryParam(
@@ -94,9 +86,22 @@ class RagSystem:
                 chunk_top_k=chunk_top_k, 
                 enable_rerank=False,
                 ids=ids,
-                response_type="Single Paragraph"
+                response_type="Single Paragraph",
+                # only_need_context=True,
+                only_need_prompt=True
             )
         )
+        print(f"length of context: {len(result)} for lightrag query")
+        # result = await self.rag.aquery(
+        #     question,
+        #     param=QueryParam(
+        #         mode=mode, top_k=top_k, 
+        #         chunk_top_k=chunk_top_k, 
+        #         enable_rerank=False,
+        #         ids=ids,
+        #         response_type="Single Paragraph",
+        #     )
+        # )
         logger.info("Query completed successfully.")
         return result
 

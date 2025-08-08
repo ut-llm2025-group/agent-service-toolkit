@@ -91,13 +91,16 @@ class FaissRagSystem:
             logger.info(f"FAISS vector store saved to {self.db_path}")
 
     async def query(self, question: str, doc_id: str) -> str:
-        """Queries the FAISS vector store for a single doc_id and generates an answer using an LLM."""
         retriever = self.vector_store.as_retriever(
             search_kwargs={
                 "k": 10,
                 "filter": {"doc_id": doc_id}
             }
         )
+
+        docs = await retriever.ainvoke(question)
+        context = "\n\n".join(doc.page_content for doc in docs)
+        print(f"length of context: {len(context)} for naiverag query")
 
         prompt_template = """Answer the question based only on the following context:
         {context}
@@ -112,8 +115,9 @@ class FaissRagSystem:
         else:
             llm = ChatOpenAI(model_name=self.llm_model, api_key=settings.OPENAI_API_KEY)
 
+        # Pass the retrieved context into the chain
         rag_chain = (
-            {"context": retriever, "question": RunnablePassthrough()}
+            {"context": lambda _: context, "question": RunnablePassthrough()}
             | prompt
             | llm
             | StrOutputParser()
