@@ -1,0 +1,19 @@
+{
+  "91c8c85c-7720-4c5f-be06-a71c4b97df00": {
+    "status": "processed",
+    "chunks_count": 1,
+    "chunks_list": [
+      "chunk-7dbbd3e72d696acd9b85621cdff97d7f"
+    ],
+    "content_summary": "On the evening when the south wind carried the scent of rain and lavender, Marisol discovered the old mirror in the attic. It was heavy, framed in tarnished silver blossoms, and deeper than it should have been, as though carved from a cavern rather t...",
+    "content_length": 2438,
+    "created_at": "2025-08-08T16:05:24.293764+00:00",
+    "updated_at": "2025-08-08T16:11:11.703013+00:00",
+    "file_path": "unknown_source",
+    "track_id": "insert_20250808_160524_be12f97d",
+    "metadata": {
+      "processing_start_time": 1754669124,
+      "processing_end_time": 1754669471
+    }
+  }
+}

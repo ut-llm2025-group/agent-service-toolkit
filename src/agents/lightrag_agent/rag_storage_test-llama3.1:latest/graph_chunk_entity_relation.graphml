@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d5" for="node" attr.name="created_at" attr.type="long"/>
+<key id="d4" for="node" attr.name="file_path" attr.type="string"/>
+<key id="d3" for="node" attr.name="source_id" attr.type="string"/>
+<key id="d2" for="node" attr.name="description" attr.type="string"/>
+<key id="d1" for="node" attr.name="entity_type" attr.type="string"/>
+<key id="d0" for="node" attr.name="entity_id" attr.type="string"/>
+<graph edgedefault="undirected"><node id="Marisol">
+  <data key="d0">Marisol</data>
+  <data key="d1">person</data>
+  <data key="d2">Marisol is a character who discovers an old mirror in the attic.</data>
+  <data key="d3">chunk-7dbbd3e72d696acd9b85621cdff97d7f</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1754669469</data>
+</node>
+<node id="Attic">
+  <data key="d0">Attic</data>
+  <data key="d1">geo</data>
+  <data key="d2">The Attic is a location where Marisol finds the old mirror.</data>
+  <data key="d3">chunk-7dbbd3e72d696acd9b85621cdff97d7f</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1754669469</data>
+</node>
+<node id="Old Mirror ">
+  <data key="d0">Old Mirror </data>
+  <data key="d1">category</data>
+  <data key="d2">The Old Mirror is described as heavy, framed in tarnished silver blossoms, and deeper than it should have been.</data>
+  <data key="d3">chunk-7dbbd3e72d696acd9b85621cdff97d7f</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1754669469</data>
+</node>
+<node id="Woman with Smoke Hair ">
+  <data key="d0">Woman with Smoke Hair </data>
+  <data key="d1">person</data>
+  <data key="d2">The Woman with Smoke Hair is a character who appears to Marisol in the mirror.</data>
+  <data key="d3">chunk-7dbbd3e72d696acd9b85621cdff97d7f</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1754669469</data>
+</node>
+<node id="Attic World ">
+  <data key="d0">Attic World </data>
+  <data key="d1">event</data>
+  <data key="d2">Marisol enters the Attic World through the old mirror, finding herself under a canopy of rainbow petals.</data>
+  <data key="d3">chunk-7dbbd3e72d696acd9b85621cdff97d7f</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1754669469</data>
+</node>
+<node id="Silver Blossoms ">
+  <data key="d0">Silver Blossoms </data>
+  <data key="d1">category</data>
+  <data key="d2">The Silver Blossoms are a decorative element on the old mirror.</data>
+  <data key="d3">chunk-7dbbd3e72d696acd9b85621cdff97d7f</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1754669469</data>
+</node>
+<node id="Rainbow Petals ">
+  <data key="d0">Rainbow Petals </data>
+  <data key="d1">event</data>
+  <data key="d2">The Rainbow Petals are a feature of the Attic World that Marisol enters through the old mirror.</data>
+  <data key="d3">chunk-7dbbd3e72d696acd9b85621cdff97d7f</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1754669469</data>
+</node>
+<node id="Lanterns ">
+  <data key="d0">Lanterns </data>
+  <data key="d1">category</data>
+  <data key="d2">The Lanterns are described as hanging overhead in the garden within the Attic World.</data>
+  <data key="d3">chunk-7dbbd3e72d696acd9b85621cdff97d7f</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1754669469</data>
+</node>
+<node id="Crow ">
+  <data key="d0">Crow </data>
+  <data key="d1">person</data>
+  <data key="d2">The Crow is a character that speaks in riddles and guides Marisol in the Attic World.</data>
+  <data key="d3">chunk-7dbbd3e72d696acd9b85621cdff97d7f</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1754669471</data>
+</node>
+<node id="Moonlight Paths ">
+  <data key="d0">Moonlight Paths </data>
+  <data key="d1">event</data>
+  <data key="d2">The Moonlight Paths are a feature of the Attic World that Marisol experiences.</data>
+  <data key="d3">chunk-7dbbd3e72d696acd9b85621cdff97d7f</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1754669471</data>
+</node>
+</graph></graphml>

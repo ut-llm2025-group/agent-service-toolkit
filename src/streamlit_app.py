@@ -113,9 +113,17 @@ async def main() -> None:
     with st.sidebar:
         st.header(f"{APP_ICON} {APP_TITLE}")
 
+        if "disable_llm_select" not in st.session_state:
+            st.session_state.disable_llm_select = False
+
         with st.popover(":material/settings: Settings", use_container_width=True):
             model_idx = agent_client.info.models.index(agent_client.info.default_model)
-            model = st.selectbox("LLM to use", options=agent_client.info.models, index=model_idx)
+            model = st.selectbox(
+                "LLM to use", 
+                options=agent_client.info.models, 
+                index=model_idx,
+                disabled=st.session_state.disable_llm_select
+            )
             agent_list = [a.key for a in agent_client.info.agents]
             agent_idx = agent_list.index(agent_client.info.default_agent)
             agent_client.agent = st.selectbox(
@@ -132,37 +140,10 @@ async def main() -> None:
             st.session_state.messages = []
             st.session_state.thread_id = str(uuid.uuid4())
             # Clear thread_id from URL
+            st.session_state.disable_llm_select = False
+            
             st.query_params.clear()
             st.rerun()
-
-        # if "chat_histories" not in st.session_state:
-        #     with st.spinner("Loading chat history..."):
-        #         try:
-        #             # Asynchronously fetch the list of threads
-        #             histories = await agent_client.alist_threads(user_id=user_id)
-        #             st.session_state.chat_histories = histories
-        #         except AgentClientError as e:
-        #             st.error(f"Failed to load chat history: {e}")
-        #             st.session_state.chat_histories = [] # Default to empty on error
-
-        # with st.expander("📜 Chat History", expanded=True):
-        #     histories = st.session_state.get("chat_histories", [])
-        #     if not histories:
-        #         st.caption("No history found.")
-        #     else:
-        #         for history in histories:
-        #             # Use title if available, otherwise format a title from the date
-        #             title = history.title if history.title else f"Chat from {history.updated_at.split('T')[0]}"
-        #             if st.button(title, key=history.thread_id, use_container_width=True, type="secondary"):
-        #                 # Set the thread_id in query params to load the chat
-        #                 st.query_params["thread_id"] = history.thread_id
-        #                 # Clean session state to force a full reload of the selected chat
-        #                 if 'messages' in st.session_state:
-        #                     del st.session_state['messages']
-        #                 if 'thread_id' in st.session_state:
-        #                     del st.session_state['thread_id'``]
-        #                 st.rerun()
-
 
         st.header("✍️ Knowledge Base")
         uploaded_files = st.file_uploader(
@@ -202,6 +183,7 @@ async def main() -> None:
                         )
                         
                         st.success(f"✅ {response_data.get('message', 'Files uploaded successfully!')}")
+                        st.session_state.disable_llm_select = True
                         st.rerun()
 
                     except AgentClientError as e:

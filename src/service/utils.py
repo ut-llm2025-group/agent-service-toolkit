@@ -100,12 +100,12 @@ async def process_documents(files: list, parsing_methods: list[str], llm_model: 
 
     if "Chunking" in parsing_methods:
         logger.info("Initializing FAISS RAG System for Chunking...")
-        faiss_system = FaissRagSystem(db_path=FAISS_DB_DIR, llm_model=llm_model)
-        await faiss_system.insert_text(full_text)
+        faiss_system = FaissRagSystem(db_path=FAISS_DB_DIR + "-" + llm_model, llm_model=llm_model)
+        await faiss_system.insert_text(full_text, doc_id=thread_id)
         logger.info("FAISS knowledge base updated.")
 
     if "Graph Extraction" in parsing_methods:
-        rag_system = RagSystem(working_dir=LIGHTRAG_WORKING_DIR, llm_model=llm_model)
+        rag_system = RagSystem(working_dir=LIGHTRAG_WORKING_DIR + "-" + llm_model, llm_model=llm_model)
         try:
             await rag_system.initialize()
             await rag_system.insert_text(full_text, ids=[thread_id])

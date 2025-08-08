@@ -24,7 +24,7 @@ def retrieve_generation(state: AgentState, config: RunnableConfig) -> AgentState
     else:
         model = "gpt-4o-mini"
     logger.info(f"Using model: {model} for RAG system.")
-    rag_system = RagSystem(LIGHTRAG_WORKING_DIR, model)
+    rag_system = RagSystem(LIGHTRAG_WORKING_DIR + "-" + model, model)
     asyncio.run(rag_system.initialize())
     result = asyncio.run(
         rag_system.query(state["messages"][-1].content, mode="hybrid", top_k=20, chunk_top_k=5, ids=[thread_id])

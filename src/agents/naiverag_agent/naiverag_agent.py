@@ -20,17 +20,18 @@ async def run_naive_rag(state: AgentState, config: RunnableConfig) -> AgentState
     queries the RAG system, and appends the AI's answer to the message list.
     """
     model = config["configurable"].get("model", settings.DEFAULT_MODEL)
+    thread_id = config["configurable"].get("thread_id", None)
     if model == "ollama":
         model = settings.OLLAMA_MODEL
     else:
         model = "gpt-4o-mini"
     
-    rag_system = FaissRagSystem(db_path=FAISS_DB_DIR, llm_model=model)
+    rag_system = FaissRagSystem(db_path=FAISS_DB_DIR + "-" + model, llm_model=model)
     
     last_message = state["messages"][-1]
     question = last_message.content
     
-    result_text = await rag_system.query(question)
+    result_text = await rag_system.query(question, doc_id=thread_id)
     
     ai_message = AIMessage(content=result_text)
     

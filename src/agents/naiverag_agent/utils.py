@@ -10,6 +10,7 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_ollama import OllamaEmbeddings
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.docstore.document import Document
 
 from core.settings import settings
 
@@ -58,37 +59,46 @@ class FaissRagSystem:
         logger.info("No existing FAISS vector store found.")
         return None
 
-    async def insert_text(self, text: str):
-        """Chunks text, creates embeddings, and upserts them into the FAISS DB."""
-        logger.info("Starting text insertion for FAISS RAG system.")
+    async def insert_text(self, text: str, doc_id: str):
+        """Chunks text, tags them with doc_id, creates embeddings, and upserts into FAISS."""
+        logger.info(f"Starting insertion for doc_id={doc_id}.")
+
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000, chunk_overlap=200
         )
         chunks = text_splitter.split_text(text)
         logger.info(f"Split text into {len(chunks)} chunks.")
 
+        documents = [
+            Document(
+                page_content=chunk,
+                metadata={"doc_id": doc_id, "chunk_index": i}
+            )
+            for i, chunk in enumerate(chunks)
+        ]
+
         if self.vector_store:
-            logger.info("Adding new documents to existing FAISS vector store.")
-            await self.vector_store.aadd_texts(chunks)
+            logger.info("Adding documents to existing FAISS vector store.")
+            await self.vector_store.aadd_documents(documents)
         else:
             logger.info("Creating new FAISS vector store.")
-            self.vector_store = await FAISS.afrom_texts(
-                texts=chunks, embedding=self.embeddings
+            self.vector_store = await FAISS.afrom_documents(
+                documents, embedding=self.embeddings
             )
 
         if self.vector_store:
             self.vector_store.save_local(self.db_path)
             logger.info(f"FAISS vector store saved to {self.db_path}")
 
-    async def query(self, question: str) -> str:
-        """Queries the FAISS vector store and generates an answer using an LLM."""
-        if not self.vector_store:
-            return "Error: FAISS database not found or loaded. Please add documents first."
-        logger.info(f"Querying FAISS RAG system with question: {question}")
-
+    async def query(self, question: str, doc_id: str) -> str:
+        """Queries the FAISS vector store for a single doc_id and generates an answer using an LLM."""
         retriever = self.vector_store.as_retriever(
-            search_kwargs={"k": 10}
+            search_kwargs={
+                "k": 10,
+                "filter": {"doc_id": doc_id}
+            }
         )
+
         prompt_template = """Answer the question based only on the following context:
         {context}
 
@@ -99,7 +109,7 @@ class FaissRagSystem:
         if "llama" in self.llm_model.lower():
             from langchain_ollama.llms import OllamaLLM
             llm = OllamaLLM(model=self.llm_model, base_url=settings.OLLAMA_BASE_URL)
-        else: 
+        else:
             llm = ChatOpenAI(model_name=self.llm_model, api_key=settings.OPENAI_API_KEY)
 
         rag_chain = (
@@ -108,4 +118,5 @@ class FaissRagSystem:
             | llm
             | StrOutputParser()
         )
+
         return await rag_chain.ainvoke(question)
