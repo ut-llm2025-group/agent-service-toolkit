@@ -4,6 +4,7 @@ checkpoints.db
 checkpoints.db-*
 src/agents/lightrag_agent/rag_storage_test/
 src/agents/naiverag_agent/faiss_storage/
+test_naive/
 
 # Langgraph
 .langgraph_api/
