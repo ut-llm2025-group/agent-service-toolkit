@@ -18,15 +18,17 @@ class AgentState(MessagesState, total=False):
 def retrieve_generation(state: AgentState, config: RunnableConfig) -> AgentState:
     """A node that appends a string to the message in the state."""
     model = config["configurable"].get("model", settings.DEFAULT_MODEL)
+    thread_id = config["configurable"].get("thread_id", None)
     if model == "ollama":
         model = settings.OLLAMA_MODEL
     else:
         model = "gpt-4o-mini"
     logger.info(f"Using model: {model} for RAG system.")
-    print(f"Using model: {model} for RAG system.")
     rag_system = RagSystem(LIGHTRAG_WORKING_DIR, model)
     asyncio.run(rag_system.initialize())
-    result = asyncio.run(rag_system.query(state["messages"][-1].content, mode="hybrid", top_k=20, chunk_top_k=5))
+    result = asyncio.run(
+        rag_system.query(state["messages"][-1].content, mode="hybrid", top_k=20, chunk_top_k=5, ids=[thread_id])
+    )
     messages = state["messages"]
     ai_message = AIMessage(result)
     return {"messages": messages + [ai_message]}

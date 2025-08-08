@@ -415,6 +415,7 @@ async def upload_files(
     files: list[UploadFile] = File(...),
     parsing_methods: list[str] = Form(...),
     llm_model: str = Form(),
+    thread_id: str = Form(),
 ):
     """
     Accepts files and a parsing method, then processes them to update the knowledge base.
@@ -426,8 +427,10 @@ async def upload_files(
     logger.info(f"Received {len(filenames)} files for processing: {', '.join(filenames)}")
     logger.info(f"Chosen parsing method: {parsing_methods}")
 
+    llm_model = "llama3.1:latest" if llm_model == "ollama" else "gpt-4o-mini"
+
     try:
-        await process_documents(files, parsing_methods, llm_model)
+        await process_documents(files, parsing_methods, llm_model, thread_id=thread_id)
         
         content = {"message": f"Knowledge base updated using FAISS {parsing_methods}."}
         

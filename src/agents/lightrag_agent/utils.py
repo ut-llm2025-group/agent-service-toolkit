@@ -80,18 +80,18 @@ class RagSystem:
             logger.error(f"Error initializing RAG system: {e}")
             raise
 
-    async def insert_text(self, text):
+    async def insert_text(self, text, ids: list[str]):
         if self.rag is None:
             raise RuntimeError("RAG system not initialized. Call initialize() first.")
         logger.info("Inserting text into RAG system...")
         try:
-            await self.rag.ainsert(text)
+            await self.rag.ainsert(text, ids=ids)
             logger.info("Text inserted successfully.")
         except Exception as e:
             logger.error(f"Error inserting text: {e}")
             raise
     
-    async def query(self, question: str, mode: Literal["local", "global", "hybrid", "naive"]="hybrid",
+    async def query(self, question: str, ids: list[str], mode: Literal["local", "global", "hybrid", "naive"]="hybrid",
                     top_k=20, chunk_top_k=5):
         """Perform a query on the RAG system.
         Args:
@@ -104,7 +104,12 @@ class RagSystem:
         try:
             result = await self.rag.aquery(
                 question,
-                param=QueryParam(mode=mode, top_k=top_k, chunk_top_k=chunk_top_k, enable_rerank=False)
+                param=QueryParam(
+                    mode=mode, top_k=top_k, 
+                    chunk_top_k=chunk_top_k, 
+                    enable_rerank=False,
+                    ids=ids
+                )
             )
             logger.info("Query completed successfully.")
             return result

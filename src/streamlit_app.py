@@ -123,9 +123,9 @@ async def main() -> None:
                 options=agent_list,
                 index=agent_idx,
             )
-            use_streaming = st.toggle("Stream results", value=False)
-
-            st.text_input("User ID (read-only)", value=user_id, disabled=True)
+            # NOTE: Disabled for now, since streaming is not supported by the agent service
+            # use_streaming = st.toggle("Stream results", value=False)
+            use_streaming = False
 
 
         if st.button(":material/chat: New Chat", use_container_width=True):
@@ -183,13 +183,6 @@ async def main() -> None:
         if use_graph:
             parsing_methods.append("Graph Extraction")
 
-        llm_model = st.radio(
-            "Select a LLM for parsing:",
-            options=["llama3.1:latest", "gpt-4o-mini"],
-            horizontal=True,
-            key="llm_model"
-        )
-
 
         if uploaded_files:
             if st.button("Add to Knowledge Base", use_container_width=True, type="primary"):
@@ -204,7 +197,8 @@ async def main() -> None:
                         response_data = await agent_client.aupload_files(
                             files_data=files_for_api, 
                             parsing_methods=parsing_methods,
-                            llm_model=llm_model,
+                            llm_model=model,
+                            thread_id=st.session_state.thread_id,
                         )
                         
                         st.success(f"✅ {response_data.get('message', 'Files uploaded successfully!')}")
@@ -229,7 +223,7 @@ async def main() -> None:
                 WELCOME = """Hello! I'm an AI-powered Company Policy & HR assistant with access to AcmeTech's Employee Handbook.
                 I can help you find information about benefits, remote work, time-off policies, company values, and more. Ask me anything!"""
             case _:
-                WELCOME = "Hello! I'm an AI agent. Ask me anything!"
+                WELCOME = "Hello! I'm an AI RAG agent. upload document and ask me anything!"
 
         with st.chat_message("ai"):
             st.write(WELCOME)

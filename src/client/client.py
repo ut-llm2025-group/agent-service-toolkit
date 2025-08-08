@@ -346,7 +346,8 @@ class AgentClient:
             self, 
             files_data: list[tuple[str, Any]], 
             parsing_methods: list[str], 
-            llm_model: str
+            llm_model: str,
+            thread_id: str,
         ) -> dict[str, Any]:
         """
         Uploads one or more files to the service asynchronously.
@@ -361,6 +362,7 @@ class AgentClient:
         data_payload = {
             "parsing_methods": parsing_methods,
             "llm_model": llm_model,
+            "thread_id": thread_id
         }
         async with httpx.AsyncClient() as client:
             try:
